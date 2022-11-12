@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import MainPageLayout from '../components/MainPageLayout';
 import { apiGet } from '../misc/config';
-import ShowGrid from '../components/Shows/ShowGrid';
+import ShowGrid from '../components/Show/ShowGrid';
 import ActorGrid from '../components/Actors/ActorGrid';
 
 const Home = () => {
