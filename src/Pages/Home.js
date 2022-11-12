@@ -1,79 +1,92 @@
-import React, { useState } from 'react'
-import MainPageLayout from '../components/MainPageLayout'
+import React, { useState } from 'react';
+import MainPageLayout from '../components/MainPageLayout';
+import { apiGet } from '../misc/config';
+import ShowGrid from '../components/Shows/ShowGrid';
+import ActorGrid from '../components/Actors/ActorGrid';
 
 const Home = () => {
+  const [input, setInput] = useState('');
+  const [results, setResults] = useState(null);
+  const [searchOption, setSearchOption] = useState('shows');
 
-  const [inputText,setInputText] = useState('');
-  const [results,setResults] = useState(null);
-  const [searchOption,setSearchOption]  = useState('shows');
+  const isShowsSearch = searchOption === 'shows';
 
-  const isSearchShows = searchOption === 'shows'
+  const onSearch = () => {
+    apiGet(`/search/${searchOption}?q=${input}`).then(result => {
+      setResults(result);
+    });
+  };
 
-  const onInputChange = e => {
-    
-    setInputText(e.target.value);
-  }
+  const onInputChange = ev => {
+    setInput(ev.target.value);
+  };
 
-  const onSearch = () =>{
-    //https://api.tvmaze.com/search/shows?q=girls
-    fetch(`https://api.tvmaze.com/search/${searchOption}?q=${inputText}`)
-    .then(r => r.json())
-    .then(response =>
-      setResults(response)
-      )
-  }
-
-  const onKeyDown = (e) => {
-    if(e.keyCode === 13){
+  const onKeyDown = ev => {
+    if (ev.keyCode === 13) {
       onSearch();
     }
-  }
+  };
+
+  const onRadioChange = ev => {
+    setSearchOption(ev.target.value);
+  };
 
   const renderResults = () => {
-
-    console.log(results)
-    if(results && results.length === 0){
-      return <div>No results found</div>
+    if (results && results.length === 0) {
+      return <div>No results</div>;
     }
-    if(results && results.length > 0){
-      return results[0].show ? results.map((result) => (
-        <div key={result.show.id}>{result.show.name}</div>
-      )) : results.map((result) => (
-        <div key={result.person.id}>{result.person.name}</div>
-      ));
+
+    if (results && results.length > 0) {
+      return results[0].show ? (
+        <ShowGrid data={results} />
+      ) : (
+        <ActorGrid data={results} />
+      );
     }
 
     return null;
-  }
-
-  const onRadioChange = (e) => {
-    setSearchOption(e.target.value)
-    console.log(e.target.value)
-  }
+  };
 
   return (
     <MainPageLayout>
-      <input placeholder='Search for something' type="text" onChange={onInputChange} onKeyDown={onKeyDown} value={inputText}/>
+      <input
+        type="text"
+        placeholder="Search for something"
+        onChange={onInputChange}
+        onKeyDown={onKeyDown}
+        value={input}
+      />
 
       <div>
-
-        <label htmlFor='show-search'>
+        <label htmlFor="shows-search">
           Shows
-          <input id='show-search' type="radio" value="shows" onChange ={onRadioChange} checked={isSearchShows}></input>
+          <input
+            id="shows-search"
+            type="radio"
+            value="shows"
+            checked={isShowsSearch}
+            onChange={onRadioChange}
+          />
         </label>
 
-        <label htmlFor='actors-search'>
+        <label htmlFor="actors-search">
           Actors
-          <input id='actors-search' type="radio" value="people" onChange ={onRadioChange} checked={!isSearchShows}></input>
+          <input
+            id="actors-search"
+            type="radio"
+            value="people"
+            checked={!isShowsSearch}
+            onChange={onRadioChange}
+          />
         </label>
-
       </div>
 
-
-      <button type="button" onClick={onSearch}>Search</button>
+      <button type="button" onClick={onSearch}>
+        Search
+      </button>
       {renderResults()}
     </MainPageLayout>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
